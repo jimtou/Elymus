@@ -1,0 +1,17 @@
+# If you want electrum to appear in a linux app launcher ("start menu"), install this by doing:
+# sudo desktop-file-install electrum.desktop
+
+[Desktop Entry]
+Comment=Lightweight Elymus Client
+Exec=elymus %u
+GenericName[en_US]=Elymus Wallet
+GenericName=Elymus Wallet
+Icon=electrum
+Name[en_US]=Elymus Bitcoin Wallet
+Name=Elymus Bitcoin Wallet
+Categories=Finance;Network;
+StartupNotify=false
+Terminal=false
+Type=Application
+MimeType=x-scheme-handler/bitcoin;
+
