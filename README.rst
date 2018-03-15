@@ -1,8 +1,8 @@
-Elymus - Lightweight BitcoinX (BTC2) Client
+Elymus - Lightweight Bitcoin NewYork (BTC2) Client
 =====================================
 
 ::
-  Elymus is lightweight BitcoinX (BTC2) client. It is powered 
+  Elymus is lightweight Bitcoin NewYork (BTC2) client. It is powered 
   by electrum 3.0.5. 
   Elymus only supports BTC2, not compatible bitcoin and electrum
   anymore. Elymus client only works with Elymus servers.
