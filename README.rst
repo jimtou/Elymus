@@ -35,7 +35,9 @@ root directory, without installing it on your system.
     ./elymus
 
 
-BitExchange Hardware Wallet Support::
+BitExchange Hardware Wallet Support:: 
+
+This support needs the latest firmware of BitExchange.
 
 1. Install python-trezor
     Pre-requirement:
