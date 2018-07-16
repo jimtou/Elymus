@@ -35,6 +35,33 @@ root directory, without installing it on your system.
     ./elymus
 
 
+BitExchange Hardware Wallet Support::
+
+1. Install python-trezor
+    Pre-requirement:
+    sudo apt-get install python3-dev cython3 libusb-1.0-0-dev libudev-dev
+
+    Requirements:
+    sudo -H pip3 install setuptools
+    sudo -H pip3 install trezor
+
+2. Install hidapi
+    Pre-requirement:
+    sudo apt-get install python-dev libusb-1.0-0-dev libudev-dev
+
+    Requirements:
+    sudo pip install --upgrade setuptools
+    sudo pip install hidapi
+
+
+3. Install trezor bridge
+
+    Go to webpage https://wallet.trezor.io/data/bridge/latest/index.html to download the corresponding package for your system. For example, I am using Ubuntu 16.04, it is trezor-bridge_2.0.13_amd64.deb
+    Install the trezor bridge package in linux
+
+Then run ./elymus and follow the instructions step by step.
+
+
 
 Windows
 -------

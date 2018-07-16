@@ -40,6 +40,9 @@ class TrezorCompatibleKeyStore(Hardware_KeyStore):
     def sign_transaction(self, tx, password):
         if tx.is_complete():
             return
+
+        self.print_error("sign_transaction tx:" + str(tx) + " password:" + str(password))
+
         # previous transactions used as inputs
         prev_tx = {}
         # path of the xpubs that are involved
@@ -54,6 +57,8 @@ class TrezorCompatibleKeyStore(Hardware_KeyStore):
                 xpub, s = parse_xpubkey(x_pubkey)
                 if xpub == self.get_master_public_key():
                     xpub_path[xpub] = self.get_derivation()
+
+        self.print_error("sign_transaction prev_tx:" + str(prev_tx) + " xpub_path" + str(xpub_path))
 
         self.plugin.sign_transaction(self, tx, prev_tx, xpub_path)
 
@@ -137,7 +142,8 @@ class TrezorCompatiblePlugin(HW_PluginBase):
         return client
 
     def get_coin_name(self):
-        return "Testnet" if NetworkConstants.TESTNET else "Bitcoin"
+        # Bitcoin NewYork instead of Bitcoin 
+        return "Bitcoin NewYork Testnet" if NetworkConstants.TESTNET else "Bitcoin NewYork"
 
     def initialize_device(self, device_id, wizard, handler):
         # Initialization method
@@ -247,7 +253,7 @@ class TrezorCompatiblePlugin(HW_PluginBase):
         address_path = "%s/%d/%d"%(derivation, change, index)
         address_n = client.expand_path(address_path)
         segwit = wallet.keystore.is_segwit()
-        script_type = self.types.SPENDP2SHWITNESS if segwit else self.types.SPENDADDRESS
+        script_type = self.types.InputScriptType.SPENDP2SHWITNESS if segwit else self.types.InputScriptType.SPENDADDRESS
         client.get_address(self.get_coin_name(), address_n, True, script_type=script_type)
 
     def tx_inputs(self, tx, for_sig=False, segwit=False):
@@ -265,7 +271,7 @@ class TrezorCompatiblePlugin(HW_PluginBase):
                         xpub, s = parse_xpubkey(x_pubkey)
                         xpub_n = self.client_class.expand_path(self.xpub_path[xpub])
                         txinputtype.address_n.extend(xpub_n + s)
-                        txinputtype.script_type = self.types.SPENDP2SHWITNESS if segwit else self.types.SPENDADDRESS
+                        txinputtype.script_type = self.types.InputScriptType.SPENDP2SHWITNESS if segwit else self.types.InputScriptType.SPENDADDRESS
                     else:
                         def f(x_pubkey):
                             if is_xpubkey(x_pubkey):
@@ -281,7 +287,7 @@ class TrezorCompatiblePlugin(HW_PluginBase):
                             signatures=map(lambda x: bfh(x)[:-1] if x else b'', txin.get('signatures')),
                             m=txin.get('num_sig'),
                         )
-                        script_type = self.types.SPENDP2SHWITNESS if segwit else self.types.SPENDMULTISIG
+                        script_type = self.types.InputScriptType.SPENDP2SHWITNESS if segwit else self.types.InputScriptType.SPENDMULTISIG
                         txinputtype = self.types.TxInputType(
                             script_type=script_type,
                             multisig=multisig
@@ -324,7 +330,7 @@ class TrezorCompatiblePlugin(HW_PluginBase):
                 addrtype, hash_160 = b58_address_to_hash160(address)
                 index, xpubs, m = info
                 if len(xpubs) == 1:
-                    script_type = self.types.PAYTOP2SHWITNESS if segwit else self.types.PAYTOADDRESS
+                    script_type = self.types.OutputScriptType.PAYTOP2SHWITNESS if segwit else self.types.OutputScriptType.PAYTOADDRESS
                     address_n = self.client_class.expand_path(derivation + "/%d/%d"%index)
                     txoutputtype = self.types.TxOutputType(
                         amount = amount,
@@ -332,7 +338,7 @@ class TrezorCompatiblePlugin(HW_PluginBase):
                         address_n = address_n,
                     )
                 else:
-                    script_type = self.types.PAYTOP2SHWITNESS if segwit else self.types.PAYTOMULTISIG
+                    script_type = self.types.OutputScriptType.PAYTOP2SHWITNESS if segwit else self.types.OutputScriptType.PAYTOMULTISIG
                     address_n = self.client_class.expand_path("/%d/%d"%index)
                     nodes = map(self.ckd_public.deserialize, xpubs)
                     pubkeys = [ self.types.HDNodePathType(node=node, address_n=address_n) for node in nodes]
@@ -349,10 +355,10 @@ class TrezorCompatiblePlugin(HW_PluginBase):
                 txoutputtype = self.types.TxOutputType()
                 txoutputtype.amount = amount
                 if _type == TYPE_SCRIPT:
-                    txoutputtype.script_type = self.types.PAYTOOPRETURN
+                    txoutputtype.script_type = self.types.OutputScriptType.PAYTOOPRETURN
                     txoutputtype.op_return_data = address[2:]
                 elif _type == TYPE_ADDRESS:
-                    txoutputtype.script_type = self.types.PAYTOADDRESS
+                    txoutputtype.script_type = self.types.OutputScriptType.PAYTOADDRESS
                     txoutputtype.address = address
 
             outputs.append(txoutputtype)
@@ -367,7 +373,8 @@ class TrezorCompatiblePlugin(HW_PluginBase):
         inputs = self.tx_inputs(tx)
         t.inputs.extend(inputs)
         for vout in d['outputs']:
-            o = t.bin_outputs.add()
+            #o = t.bin_outputs.add()
+            o = t._add_bin_outputs()
             o.amount = vout['value']
             o.script_pubkey = bfh(vout['scriptPubKey'])
         return t
