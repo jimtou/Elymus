@@ -75,7 +75,7 @@ Install the Qt dependencies:
 open windows cmd window, go to python install directory, in my windows 10, the default 
 installed directory is "C:\Users\xxxx\AppData\Local\Programs\Python\Python36-32"
 
-    "python dir"\scripts\pip.exe install pyqt5
+    "python dir"\scripts/\pip.exe install pyqt5
 
 Downlaod the official package, the run Elymus from its directory.
 
